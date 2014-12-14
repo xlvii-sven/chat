@@ -4,9 +4,12 @@
   "description": "web chat",
   "main": "app.js",
   "dependencies": {
-    "bootstrap": "^3.3.1",
     "express": "^4.10.4",
     "socket.io": "^1.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xlvii-sven/chat.git"
   },
   "scripts": {
     "start": "node app.js"

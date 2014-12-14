@@ -12,6 +12,7 @@ app.get( "/", function ( req, res ) {
 } );
 
 app.use( "/", express.static( "client" ) );
+app.use( "/lib", express.static( "bower_components" ) );
 
 var data = {
 		users: {},
