@@ -1,0 +1,67 @@
+<html ng-app="chatApp">
+<head>
+<title>Chat</title>
+
+<link rel="icon" type="image/png" href="icon.png">
+
+<!-- <link rel="stylesheet" type="text/css" href="lib/bootstrap.css"> -->
+<link rel="stylesheet" type="text/css" href="lib/bootstrap.min.css">
+
+<!-- <script type="text/javascript" src="lib/jquery-2.1.0.js"></script> -->
+<script type="text/javascript" src="lib/jquery-2.1.0.min.js"></script>
+<!-- <script type="text/javascript" src="lib/angular.js"></script> -->
+<script type="text/javascript" src="lib/angular.min.js"></script>
+<!-- <script type="text/javascript" src="lib/angular-route.js"></script> -->
+<script type="text/javascript" src="lib/angular-route.min.js"></script>
+
+<script type="text/javascript" src="socket.io/socket.io.js"></script>
+
+<script type="text/javascript" src="chat.js"></script>
+
+</head>
+
+<body ng-controller="chatCtrl">
+
+	<nav class="navbar navbar-default navbar-static-top">
+		<div class="container-fluid">
+			<label class="navbar-text navbar-left">{{user.name}}</label>
+			<form ng-hide="user.name" ng-submit="login( name )" class="navbar-form navbar-left">
+				<input ng-model="name" placeholder="Login">
+			</form>
+			<button ng-show="user.name" ng-click="logout()" class="btn navbar-btn navbar-left">Logout</button>
+			<p style="padding-right: 15px" class="navbar-text navbar-right">Online: {{all}}</p>
+		</div>
+	</nav>
+
+	<div class="container-fluid">
+		<div class="row-fluid">
+			<div class="col-sm-10">
+				
+				<form ng-show="user.name" ng-submit="sendMsg( text )">
+					<input ng-model="text">
+				</form>
+				
+				<ul style="overflow-y: auto; overflow-wrap: break-word; height: 75%" class="list-unstyled">
+					<li ng-repeat="msg in msgs | array | orderBy : 'id' : true">
+						<span class="text-padding">
+							<span style="color: silver">{{msg.date | date : 'HH:mm'}}</span>
+							<span class="text-padding">{{msg.user}}: {{msg.text}}</span>
+						</span>
+					</li>
+				</ul>
+				
+			</div>
+			<div class="col-sm-1">
+			
+				<ul ng-show="getSize( users, isLoggedIn )" class="list-unstyled">
+					<li ng-repeat="user in users | filter : isLoggedIn">
+						{{user.name}}
+					</li>
+				</ul>
+				
+			</div>
+		</div>
+	</div>
+	
+</body>
+</html>
