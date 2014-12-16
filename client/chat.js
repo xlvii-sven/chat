@@ -4,6 +4,58 @@ getSize = function( object ) {
 	return Object.keys( object ).length;
 }
 
+notify = function( msg, timeout ) {
+
+	if ( !Notification || Notification.permission === "denied" ) {
+		return;
+	}
+
+	if ( Notification.permission === "granted" ) {
+		createNotification( msg, timeout );
+	}
+
+	if ( Notification.permission === "default" ) {
+		Notification.requestPermission( function( permission ) {
+			if ( permission === "granted" ) {
+				createNotification( msg, timeout );
+			}
+		});
+	}
+
+}
+
+createNotification = function( msg, timeout ) {
+
+	var notification = new Notification( msg.user, {
+	// icon: null,
+	// sound: null,
+	// dir: "auto",
+	// lang: null,
+	// tag: null,
+	 body : msg.text
+	// data: null,
+	// renotify: false,
+	// silent: false,
+	// noscreen: false,
+	// sticky: false
+	});
+
+	notification.onshow = function() {
+		if ( timeout ) {
+			setTimeout( function() {
+				notification.close();
+			}, timeout );
+		}
+	}
+	notification.onclose = function() {
+	}
+	notification.onerror = function() {
+	}
+	notification.onclick = function() {
+	}
+
+}
+
 chatApp.config( function( $routeProvider ) {
 	$routeProvider
 	.when( "/", {
@@ -69,6 +121,7 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 	} );
 	socket.on( "addMsg", function( msg ) {
 		$scope.msgs[msg.id] = msg;
+		notify( msg, 5000 );
 	} );
 	socket.on( "removeMsg", function( msg ) {
 		delete $scope.msgs[msg.id];
