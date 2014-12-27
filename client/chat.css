@@ -1,0 +1,15 @@
+.navbar-right:last-child {
+	margin-right: 15px;
+}
+
+.list-group .glyphicon {
+	margin-right: 10px;
+}
+
+.glyphicon {
+	color: #ddd;
+}
+
+.glyphicon.active {
+	color: #c90;
+}

@@ -6,39 +6,45 @@
 
 <link rel="stylesheet" type="text/css" href="lib/bootstrap/dist/css/bootstrap.min.css">
 
+<link rel="stylesheet" type="text/css" href="chat.css">
+
 <script type="text/javascript" src="lib/jquery/dist/jquery.min.js"></script>
 <script type="text/javascript" src="lib/angular/angular.min.js"></script>
 <script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
 
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
 
+<script type="text/javascript" src="notify.js"></script>
 <script type="text/javascript" src="chat.js"></script>
 
 </head>
 
 <body ng-controller="chatCtrl">
 
+	<!-- nav bar -->
 	<nav class="navbar navbar-default navbar-static-top">
 		<div class="container-fluid">
-			<label class="navbar-text navbar-left">{{user.name}}</label>
-			<form ng-hide="user.name" ng-submit="login( name )" class="navbar-form navbar-left">
-				<input ng-model="name" placeholder="Login">
-			</form>
 			<button ng-show="user.name" ng-click="logout()" class="btn navbar-btn navbar-left">Logout</button>
-			<p style="padding-right: 15px" class="navbar-text navbar-right">Online: {{all}}</p>
+			<label ng-show="user.name" class="navbar-text navbar-left">{{user.name}}</label>
+			<form ng-hide="user.name" ng-submit="login( name )" class="navbar-form navbar-left">
+				<input ng-model="name" placeholder="Login" class="form-control">
+			</form>
+			<p class="navbar-text navbar-right">Online <span class="badge">{{all}}</span></p>
 		</div>
 	</nav>
 
 	<div class="container-fluid">
 		<div class="row-fluid">
-			<div class="col-sm-10">
+			<div class="col-sm-7">
 				
+				<!-- input -->
 				<form ng-show="user.name" ng-submit="sendMsg( text )">
-					<input ng-model="text">
+					<input ng-model="text" class="form-control">
 				</form>
 				
+				<!-- msg list -->
 				<ul style="overflow-y: auto; overflow-wrap: break-word; height: 75%" class="list-unstyled">
-					<li ng-repeat="msg in msgs | array | orderBy : 'id' : true">
+					<li ng-repeat="msg in user.topic.msgs | array | orderBy : 'id' : true">
 						<span class="text-padding">
 							<span style="color: silver">{{msg.date | date : 'HH:mm'}}</span>
 							<span class="text-padding">{{msg.user}}: {{msg.text}}</span>
@@ -47,13 +53,29 @@
 				</ul>
 				
 			</div>
-			<div class="col-sm-1">
+			<div ng-show="user.name" class="col-sm-5">
 			
-				<ul ng-show="getSize( users, isLoggedIn )" class="list-unstyled">
-					<li ng-repeat="user in users | filter : isLoggedIn">
-						{{user.name}}
-					</li>
-				</ul>
+				<!-- user list -->
+				<div class="col-sm-6">
+					<ul class="list-group">
+						<li ng-repeat="user in users | array | filter : isLoggedIn" class="list-group-item">
+							<span class="glyphicon glyphicon-star" ng-click="changeNotify( user )" ng-class="{active: user.notify}"></span>
+							{{user.name}}
+						</li>
+					</ul>
+				</div>
+				
+				<!-- topic list -->
+				<div class="col-sm-6">
+					<div class="list-group">
+						<form ng-submit="addTopic( name )" class="list-group-item">
+							<input ng-model="name" placeholder="Add Topic" class="form-control">
+						</form>
+						<div ng-repeat="topic in topics" ng-click="changeTopic( topic )" ng-class="{active: user.topic.id == topic.id}" class="list-group-item">
+							<span class="glyphicon glyphicon-star" ng-click="changeNotify( topic )" ng-class="{active: topic.notify}"></span>{{topic.name}}<span class="badge">{{topic.users}}</span>
+						</div>
+					</div>
+				</div>
 				
 			</div>
 		</div>

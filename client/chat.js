@@ -4,58 +4,6 @@ getSize = function( object ) {
 	return Object.keys( object ).length;
 }
 
-notify = function( msg, timeout ) {
-
-	if ( !Notification || Notification.permission === "denied" ) {
-		return;
-	}
-
-	if ( Notification.permission === "granted" ) {
-		createNotification( msg, timeout );
-	}
-
-	if ( Notification.permission === "default" ) {
-		Notification.requestPermission( function( permission ) {
-			if ( permission === "granted" ) {
-				createNotification( msg, timeout );
-			}
-		});
-	}
-
-}
-
-createNotification = function( msg, timeout ) {
-
-	var notification = new Notification( msg.user, {
-	// icon: null,
-	// sound: null,
-	// dir: "auto",
-	// lang: null,
-	// tag: null,
-	 body : msg.text
-	// data: null,
-	// renotify: false,
-	// silent: false,
-	// noscreen: false,
-	// sticky: false
-	});
-
-	notification.onshow = function() {
-		if ( timeout ) {
-			setTimeout( function() {
-				notification.close();
-			}, timeout );
-		}
-	}
-	notification.onclose = function() {
-	}
-	notification.onerror = function() {
-	}
-	notification.onclick = function() {
-	}
-
-}
-
 chatApp.config( function( $routeProvider ) {
 	$routeProvider
 	.when( "/", {
@@ -78,6 +26,7 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 	}
 	$scope.logout = function() {
 		socket.emit( "logout" );
+		socket.emit( "changeTopic", 0 );
 	}
 	$scope.sendMsg = function( text ) {
 		if( text ) {
@@ -87,6 +36,19 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 	}
 	$scope.removeMsg = function( msg ) {
 		socket.emit( "removeMsg", msg );
+	}
+	$scope.addTopic = function( name ) {
+		if( name ) {
+			socket.emit( "addTopic", {name: name} );
+			$scope.name = "";
+		}
+	}
+	$scope.changeTopic = function( topic ) {
+		socket.emit( "changeTopic", topic.id );
+	}
+	$scope.changeNotify = function( context ) {
+		context.notify = !context.notify;
+		event.stopPropagation();
 	}
 	$scope.getSize = function( object, filter ) {
 		var size = 0;
@@ -99,15 +61,18 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 		return !!user.name;
 	}
 	// events
-	socket.on( "init", function( data ) {
-		$scope.user = data.user;
+	socket.on( "initUser", function( user ) {
+		$scope.user = user;
+	} );
+	socket.on( "initData", function( data ) {
 		$scope.users = data.users;
-		$scope.msgs = data.msgs;
+		$scope.topics = data.topics;
 		$scope.all = getSize( data.users );
 	} );
 	socket.on( "addUser", function( user ) {
 		$scope.users[user.ip] = user;
 		$scope.all++;
+		$scope.topics[user.topic.id].users++;
 	} );
 	socket.on( "updateUser", function( user ) {
 		$scope.users[user.ip] = user;
@@ -118,13 +83,35 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 	socket.on( "removeUser", function( user ) {
 		delete $scope.users[user.ip];
 		$scope.all--;
+		$scope.topics[user.topic.id].users--;
 	} );
 	socket.on( "addMsg", function( msg ) {
-		$scope.msgs[msg.id] = msg;
-		notify( msg, 5000 );
+		// add msg
+		if( $scope.user.topic.id == msg.topic ) {
+			$scope.user.topic.msgs[msg.id] = msg;
+		}
+		// mark topic in topic list
+		else {
+			
+		}
+		// notifiy if msg belongs to favorite user or topic
+		if( $scope.users[msg.userIP].notify || $scope.topics[msg.topic].notify ) {
+			notify( msg, 5000 );
+		}
 	} );
 	socket.on( "removeMsg", function( msg ) {
 		delete $scope.msgs[msg.id];
+	} );
+	socket.on( "addTopic", function( topic ) {
+		$scope.topics[topic.id] = topic;
+	} );
+	socket.on( "updateTopic", function( topic ) {
+		topic.notify = $scope.topics[topic.id].notify;
+		$scope.topics[topic.id] = topic;
+	} );
+	socket.on( "changeTopic", function( topic ) {
+		topic.notify = $scope.topics[topic.id].notify;
+		$scope.user.topic = topic;
 	} );
 } );
 

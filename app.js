@@ -16,20 +16,29 @@ app.use( "/lib", express.static( "bower_components" ) );
 
 var data = {
 		users: {},
-		msgs: {}
+		topics: {}
 	},
 	userIds = 0,
-	msgIds = 0;
+	msgIds = 0,
+	topicIds = 0;
+
+var general = { id: topicIds++, name: "general", users: 0, msgs: {} };
+
+data.topics[general.id] = general;
 
 io.on( "connection", function( socket ) {
 	
 	var ip = getIP( socket ),
 		user = data.users[ip];
 	
-	if( !user ) user = data.users[ip] = { id: userIds++, ip: ip };
+	if( !user ) {
+		user = data.users[ip] = { id: userIds++, ip: ip, topic: general };
+		general.users++;
+	}
 	
 	console.log( "connect: " + ip );
-	socket.emit( "init", {user: user, users: data.users, msgs: data.msgs} );
+	socket.emit( "initUser", user );
+	socket.emit( "initData", data );
 	socket.broadcast.emit( "addUser", user );
 	
 	socket.on( "login", function( name ) {
@@ -44,9 +53,30 @@ io.on( "connection", function( socket ) {
 	socket.on( "addMsg", function( msg ) {
 		msg.id = msgIds++;
 		msg.user = user.name;
+		msg.userIP = user.ip;
 		msg.date = new Date();
-		data.msgs[msg.id] = msg;
+		msg.topic = user.topic.id;
+		msg.icon = "icon.png";
+		user.topic.msgs[msg.id] = msg;
 		io.emit( "addMsg", msg );
+	} );
+	
+	socket.on( "addTopic", function( topic ) {
+		topic.id = topicIds++;
+		topic.users = 0;
+		topic.msgs = {};
+		data.topics[topic.id] = topic;
+		io.emit( "addTopic", topic );
+	} );
+	
+	socket.on( "changeTopic", function( targetId ) {
+		var sourceTopic = user.topic, targetTopic = data.topics[targetId];
+		sourceTopic.users--;
+		targetTopic.users++;
+		user.topic = targetTopic;
+		socket.emit( "changeTopic", targetTopic );
+		io.emit( "updateTopic", sourceTopic );
+		io.emit( "updateTopic", targetTopic );
 	} );
 	
 	socket.on( "disconnect", function() {
