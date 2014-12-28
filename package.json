@@ -2,16 +2,17 @@
   "name": "chat",
   "version": "0.0.1",
   "description": "web chat",
+  "homepage": "https://github.com/xlvii-sven/chat",
   "main": "app.js",
-  "dependencies": {
-    "express": "^4.10.4",
-    "socket.io": "^1.2.1"
+  "scripts": {
+    "start": "node app.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/xlvii-sven/chat.git"
   },
-  "scripts": {
-    "start": "node app.js"
+  "dependencies": {
+    "express": "^4.10.4",
+    "socket.io": "^1.2.1"
   }
 }
