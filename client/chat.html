@@ -2,6 +2,8 @@
 <head>
 <title>Chat</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link rel="icon" type="image/png" href="icon.png">
 
 <link rel="stylesheet" type="text/css" href="lib/bootstrap/dist/css/bootstrap.min.css">
@@ -43,10 +45,14 @@
 				</form>
 				
 				<!-- msg list -->
-				<ul style="overflow-y: auto; overflow-wrap: break-word; height: 75%" class="list-unstyled">
-					<li ng-repeat="msg in user.topic.msgs | array | orderBy : 'id' : true">
-						<span style="color: silver">{{msg.date | date : 'HH:mm'}}</span>
-						<span class="text-padding">{{msg.user}}: {{msg.text}}</span>
+				<ul style="overflow-y: auto; overflow-wrap: break-word; height: 75%" class="list-group">
+					<li ng-repeat="msg in user.topic.msgs | array | orderBy : 'id' : true" class="list-group-item">
+						<div class="message">
+							<span class="date">{{msg.date | date : 'HH:mm'}}</span>
+							<span class="user">{{msg.user}}</span>
+							<span class="text">{{msg.text}}</span>
+							<span ng-show="user.ip == msg.userIP" class="close glyphicon glyphicon-minus" ng-click="removeMsg( msg )"></span>
+						</div>
 					</li>
 				</ul>
 				

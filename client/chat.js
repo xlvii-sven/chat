@@ -88,6 +88,7 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 	socket.on( "addMsg", function( msg ) {
 		// add msg
 		if( $scope.user.topic.id == msg.topic ) {
+			// $scope.topics[msg.topic].msgs[msg.id] = msg;
 			$scope.user.topic.msgs[msg.id] = msg;
 		}
 		// mark topic in topic list
@@ -100,7 +101,8 @@ chatApp.controller( 'chatCtrl', function( $scope, socket ) {
 		}
 	} );
 	socket.on( "removeMsg", function( msg ) {
-		delete $scope.msgs[msg.id];
+		// delete $scope.topics[msg.topic].msgs[msg.id];
+		delete $scope.user.topic.msgs[msg.id];
 	} );
 	socket.on( "addTopic", function( topic ) {
 		$scope.topics[topic.id] = topic;

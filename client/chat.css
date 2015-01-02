@@ -6,10 +6,25 @@
 	margin-right: 10px;
 }
 
-.glyphicon {
+.glyphicon-star {
 	color: #ddd;
 }
 
-.glyphicon.active {
+.glyphicon-star.active {
 	color: #c90;
+}
+
+.message {
+}
+
+.message .date {
+	color: silver;
+}
+
+.message .user {
+	font-weight: bold;
+}
+
+.message .text {
+	padding-left: 10px;
 }

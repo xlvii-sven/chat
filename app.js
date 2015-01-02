@@ -61,6 +61,11 @@ io.on( "connection", function( socket ) {
 		io.emit( "addMsg", msg );
 	} );
 	
+	socket.on( "removeMsg", function( msg ) {
+		delete user.topic.msgs[msg.id];
+		io.emit( "removeMsg", msg );
+	} );
+	
 	socket.on( "addTopic", function( topic ) {
 		topic.id = topicIds++;
 		topic.users = 0;
